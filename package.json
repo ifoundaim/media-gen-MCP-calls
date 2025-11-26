@@ -1,0 +1,11 @@
+{
+  "name": "media-gen-MCP-calls-root",
+  "private": true,
+  "version": "0.0.0",
+  "description": "Root wrapper for the media-gen-MCP-calls XMCP app",
+  "scripts": {
+    "dev": "cd media-gen-MCP-calls && npm run dev",
+    "build": "cd media-gen-MCP-calls && npm run build",
+    "start": "cd media-gen-MCP-calls && npm run start"
+  }
+}
