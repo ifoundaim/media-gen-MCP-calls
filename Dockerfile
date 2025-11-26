@@ -3,12 +3,12 @@ FROM node:22-alpine
 # Work inside the inner XMCP app directory
 WORKDIR /app
 
-# Install dependencies
-COPY media-gen-MCP-calls/media-gen-MCP-calls/package*.json ./
-RUN npm ci --omit=dev
+# Install dependencies from the inner XMCP app (include devDeps for TypeScript types)
+COPY media-gen-MCP-calls/package*.json ./
+RUN npm install
 
 # Copy application source
-COPY media-gen-MCP-calls/media-gen-MCP-calls ./
+COPY media-gen-MCP-calls/. ./
 
 # Build the XMCP project (outputs to dist/)
 RUN npm run build

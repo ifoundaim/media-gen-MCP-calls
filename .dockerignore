@@ -1,0 +1,10 @@
+node_modules
+npm-debug.log
+Dockerfile
+.git
+.gitignore
+fly.toml
+media-gen-MCP-calls/node_modules
+media-gen-MCP-calls/dist
+
+

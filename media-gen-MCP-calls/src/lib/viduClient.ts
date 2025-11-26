@@ -8,6 +8,8 @@ export interface CreateViduVideoOptions {
   durationSeconds: number;
   aspectRatio: string;
   style?: string;
+   // Optional URL of a reference image to guide the video (image-to-video).
+  referenceImageUrl?: string;
 }
 
 export interface ViduVideoResult {
@@ -35,6 +37,7 @@ export async function createViduVideo(
     durationSeconds,
     aspectRatio,
     style,
+    referenceImageUrl,
   } = options;
 
   const endpoint =
@@ -49,6 +52,11 @@ export async function createViduVideo(
   const trimmedStyle = style?.trim();
   if (trimmedStyle) {
     payload.style = trimmedStyle;
+  }
+
+  if (referenceImageUrl) {
+    // Adjust this field name once Vidu's official contract is confirmed.
+    payload.reference_image_url = referenceImageUrl;
   }
 
   const response = await fetch(endpoint, {
