@@ -14,8 +14,16 @@ const ASPECT_RATIO_PATTERN = /^\d+:\d+$/;
 export const schema = {
   prompt: z
     .string()
-    .min(1, "Prompt is required")
-    .describe("Full text description for Vidu to base the video on"),
+    .min(1, "Prompt cannot be empty when provided")
+    .optional()
+    .describe("Full text description for Vidu to base the video on (optional if promptBase64 is provided)."),
+  promptBase64: z
+    .string()
+    .regex(/^[A-Za-z0-9+/=]+$/, "promptBase64 must be base64-encoded")
+    .optional()
+    .describe(
+      "Base64-encoded prompt text. Use this when long prompts might introduce Unicode encoding issues.",
+    ),
   durationSeconds: z
     .number()
     .optional()
@@ -56,7 +64,8 @@ export const metadata: ToolMetadata = {
 export default async function generateViduVideo(
   input: GenerateViduVideoInput,
 ): Promise<GenerateViduVideoOutput> {
-  const prompt = cleanPromptForVidu(input.prompt);
+  const rawPrompt = resolvePrompt(input);
+  const prompt = cleanPromptForVidu(rawPrompt);
   if (!prompt) {
     throw new Error("Prompt cannot be empty");
   }
@@ -75,6 +84,30 @@ export default async function generateViduVideo(
     style,
     referenceImageUrl,
   });
+}
+
+function resolvePrompt(input: GenerateViduVideoInput): string {
+  if (input.promptBase64) {
+    try {
+      const decoded = Buffer.from(input.promptBase64, "base64").toString("utf8");
+      if (decoded.trim().length === 0) {
+        throw new Error("promptBase64 decoded to an empty string");
+      }
+      return decoded;
+    } catch (error) {
+      throw new Error(
+        `Failed to decode promptBase64. Ensure it is valid base64. ${
+          error instanceof Error ? error.message : ""
+        }`,
+      );
+    }
+  }
+
+  if (typeof input.prompt === "string" && input.prompt.trim().length > 0) {
+    return input.prompt;
+  }
+
+  throw new Error("Provide either promptBase64 or prompt.");
 }
 
 function cleanPromptForVidu(raw: string): string {
